@@ -4,6 +4,8 @@ class Blob
   DNA dna;
   int geneForceIndex;
   float fitness;
+  float OBSTACLE_DETERRENT = 0.1;
+  float TARGET_REWARD = 1.5;
 
   // Phenotype
   PVector startLocation = new PVector(width / 2, height - 50);
@@ -13,6 +15,7 @@ class Blob
   int r = 10;
   int redValue = 255;
   boolean is_at_target;
+  boolean has_collided;
 
   Blob()
   {
@@ -22,6 +25,7 @@ class Blob
     dna = new DNA();
     geneForceIndex = 0;
     is_at_target = false;
+    has_collided = false;
     display();
   }
 
@@ -33,13 +37,15 @@ class Blob
     this.dna = new_genes;
     this.geneForceIndex = 0;
     this.is_at_target = false;
+    this.has_collided = false;
     display();
   }
 
   void step()
   {
     at_target();
-    if (!is_at_target) {
+    check_for_obstacles();
+    if (!is_at_target && !has_collided) {
       applyForce(this.dna.genes[geneForceIndex]);
       geneForceIndex = (geneForceIndex + 1) % this.dna.genes.length;
     }
@@ -63,12 +69,25 @@ class Blob
   {
     float d = dist(location.x, location.y, target.x, target.y);
     fitness = pow(1 / d, 2);
+    if (has_collided)
+      fitness *= OBSTACLE_DETERRENT;
+    if (this.is_at_target)
+      fitness *= TARGET_REWARD;
   }
 
   void at_target()
   {
     if (dist(location.x, location.y, target.x, target.y) < 10)
       is_at_target = true;
+  }
+  
+  void check_for_obstacles()
+  {
+    for (Obstacle obs : obstacles)
+    {
+      if (obs.contains(this.location))
+        has_collided = true;
+    }
   }
 
   void display()
