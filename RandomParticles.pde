@@ -13,6 +13,7 @@ PFont font;
 void setup()
 {
   size(800, 500);
+  
   generalPop = new Population(POPULATION_SIZE, MUTATION_RATE);
   
   obstacles = new ArrayList<Obstacle>();

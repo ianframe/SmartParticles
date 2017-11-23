@@ -16,6 +16,8 @@ class Blob
   int redValue = 255;
   boolean is_at_target;
   boolean has_collided;
+  float best_distance;
+  int finish_time;
 
   Blob()
   {
@@ -26,6 +28,7 @@ class Blob
     geneForceIndex = 0;
     is_at_target = false;
     has_collided = false;
+    best_distance = Float.MAX_VALUE;
     display();
   }
 
@@ -38,6 +41,7 @@ class Blob
     this.geneForceIndex = 0;
     this.is_at_target = false;
     this.has_collided = false;
+    this.best_distance = Float.MAX_VALUE;
     display();
   }
 
@@ -49,6 +53,7 @@ class Blob
       applyForce(this.dna.genes[geneForceIndex]);
       geneForceIndex = (geneForceIndex + 1) % this.dna.genes.length;
     }
+    if (!is_at_target)  finish_time++;
     display();
   }
 
@@ -67,8 +72,7 @@ class Blob
 
   void fitness()
   {
-    float d = dist(location.x, location.y, target.x, target.y);
-    fitness = pow(1 / d, 2);
+    fitness = pow(1 / (best_distance*finish_time), 2);
     if (has_collided)
       fitness *= OBSTACLE_DETERRENT;
     if (this.is_at_target)
@@ -77,8 +81,11 @@ class Blob
 
   void at_target()
   {
-    if (dist(location.x, location.y, target.x, target.y) < 10)
+    float d = dist(location.x, location.y, target.x, target.y);
+    if (d < 10)
       is_at_target = true;
+    if (d < best_distance) 
+      best_distance = d;
   }
   
   void check_for_obstacles()
